@@ -27,7 +27,8 @@ def fit(epochs, model, train_dl, test_dl, lr, save_path, device_name, resume, nu
 
     model.to(device)
     for i in range(start, epochs):
-        print(f"--------------epoch [{i + 1}/{epochs}] --------------{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        now_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"--------------epoch [{i + 1}/{epochs}] --------------{now_time}")
 
         model.train()
         epoch_acc, epoch_loss = 0, 0
@@ -77,6 +78,13 @@ def fit(epochs, model, train_dl, test_dl, lr, save_path, device_name, resume, nu
             best_acc = Test_Acc[i]
             torch.save(best_model_wts, f'{save_path}/best.pt')
             print("reach best acc: {:.2f}%".format(Test_Acc[i] * 100))
+
+        with open(f'{save_path}/logs.txt', 'a') as f:
+            f.write(f'[{i + 1}/{epochs}] {now_time}  ')
+            f.write("Train:Loss:{:.4f} Acc:{:.2f}% lr:{}  ".format(Train_Loss[i], Train_Acc[i] * 100,
+                                                                   optimizer.param_groups[0]['lr']))
+            f.write("Valid:Loss:{:.4f} Acc:{:.2f}% Best Acc:{:.2f}%\n".format(Test_Loss[i], Test_Acc[i] * 100,
+                                                                              best_acc * 100))
 
         torch.save(model.state_dict(), f'{save_path}/last.pt')
 
